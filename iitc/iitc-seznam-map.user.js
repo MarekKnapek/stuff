@@ -5,7 +5,9 @@
 // @namespace    iitcseznamcz
 // @description  IITC map layer from seznam.cz
 // @author       Marek
-// @version      0.1
+// @version      0.2
+// @downloadURL  https://github.com/MarekKnapek/stuff/raw/release/iitc/iitc-seznam-map.user.js
+// @updateURL    https://github.com/MarekKnapek/stuff/raw/release/iitc/iitc-seznam-map.user.update.js
 // @include      https://www.ingress.com/intel*
 // @include      http://www.ingress.com/intel*
 // @match        https://www.ingress.com/intel*
@@ -68,6 +70,8 @@ function wrapper(plugin_info)
 					{
 						this.sz_code = code;
 						this.sz_name = name;
+						var opts = {maxZoom:16};
+						L.Util.setOptions(this, opts);
 					},
 					onAdd: function(map)
 					{
