@@ -3,9 +3,9 @@
 // @name         IITC map layer from seznam.cz
 // @category     Map Tiles
 // @namespace    iitcseznamcz
-// @version      0.1
 // @description  IITC map layer from seznam.cz
 // @author       Marek
+// @version      0.1
 // @include      https://www.ingress.com/intel*
 // @include      http://www.ingress.com/intel*
 // @match        https://www.ingress.com/intel*
