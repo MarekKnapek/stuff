@@ -63,7 +63,7 @@ function wrapper(plugin_info)
 					},
 					onAdd: function(map)
 					{
-						debugger;
+						//debugger;
 						this.sz_map = map;
 						var div_outer = document.createElement("div");
 						var div_inner = document.createElement("div");
@@ -99,7 +99,7 @@ function wrapper(plugin_info)
 					},
 					onRemove: function(map)
 					{
-						debugger;
+						//debugger;
 						var map = this.sz_map;
 						map.off("move", this.sz_move, this);
 						map.off("viewreset", this.sz_reset, this);
