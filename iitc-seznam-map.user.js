@@ -57,13 +57,17 @@ function wrapper(plugin_info)
 				];
 
 				var seznam_layer = L.Class.extend({
-					initialize: function(code)
+					initialize: function(code, name)
 					{
 						this.sz_code = code;
+						this.sz_name = name;
 					},
 					onAdd: function(map)
 					{
 						//debugger;
+
+						console.log("iitc seznam.cz maps plugin: - Adding layer " + this.sz_name + ".");
+
 						this.sz_map = map;
 						var div_outer = document.createElement("div");
 						var div_inner = document.createElement("div");
@@ -100,6 +104,9 @@ function wrapper(plugin_info)
 					onRemove: function(map)
 					{
 						//debugger;
+
+						console.log("iitc seznam.cz maps plugin: - Removing layer " + this.sz_name + ".");
+
 						var map = this.sz_map;
 						map.off("move", this.sz_move, this);
 						map.off("viewreset", this.sz_reset, this);
@@ -136,16 +143,19 @@ function wrapper(plugin_info)
 				var len = layer_types.length;
 				for(i = 0; i != len; ++i){
 					var lg = new L.LayerGroup();
-					lg.addLayer(new seznam_layer(layer_types[i][1]));
-					layerChooser.addBaseLayer(lg, "seznam.cz - " + layer_types[i][0]);
+					lg.addLayer(new seznam_layer(layer_types[i][1], layer_types[i][0]));
+					layerChooser.addBaseLayer(lg, "seznam.cz " + layer_types[i][0]);
 					window.plugin.map_seznam.layer_group.push(lg);
 				}
+				console.log("iitc seznam.cz maps plugin: - seznam.cz loader finished.");
 			};
 
+			console.log("iitc seznam.cz maps plugin: - seznam.cz API downloaded, starting loader.");
 			Loader.async = true;
 			Loader.load(null, {}, seznam_loader_done);
 		};
 
+		console.log("iitc seznam.cz maps plugin: - Donwloading seznam.cz API.");
 		var seznam_api = "https://api.mapy.cz/loader.js";
 		load(seznam_api).thenRun(seznam_api_loaded);
 	};
@@ -153,15 +163,16 @@ function wrapper(plugin_info)
 
 	var setup = window.plugin.map_seznam.setup;
 	setup.info = plugin_info;
-		if(!window.bootPlugins){
-				window.bootPlugins = [];
-		}
+	if(!window.bootPlugins){
+			window.bootPlugins = [];
+	}
 	window.bootPlugins.push(setup);
-		if(window.iitcLoaded && typeof setup === "function"){
-				setup();
-		}
+	if(window.iitcLoaded){
+			setup();
+	}
 }
 
+console.log("iitc seznam.cz maps plugin: - I'm alive!");
 var script = document.createElement("script");
 var info = {};
 if(typeof GM_info !== 'undefined' && GM_info && GM_info.script){
