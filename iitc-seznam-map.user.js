@@ -66,7 +66,7 @@ function wrapper(plugin_info)
 					{
 						//debugger;
 
-						console.log("iitc seznam.cz maps plugin: Adding layer " + this.sz_name + ".");
+						console.log("iitc seznam.cz maps plugin " + (new Date().toISOString()) + " Adding layer " + this.sz_name + ".");
 
 						this.sz_map = map;
 						var div_outer = document.createElement("div");
@@ -105,7 +105,7 @@ function wrapper(plugin_info)
 					{
 						//debugger;
 
-						console.log("iitc seznam.cz maps plugin: Removing layer " + this.sz_name + ".");
+						console.log("iitc seznam.cz maps plugin " + (new Date().toISOString()) + " Removing layer " + this.sz_name + ".");
 
 						var map = this.sz_map;
 						map.off("move", this.sz_move, this);
@@ -147,15 +147,15 @@ function wrapper(plugin_info)
 					layerChooser.addBaseLayer(lg, "seznam.cz " + layer_types[i][0]);
 					window.plugin.map_seznam.layer_group.push(lg);
 				}
-				console.log("iitc seznam.cz maps plugin: seznam.cz loader finished.");
+				console.log("iitc seznam.cz maps plugin " + (new Date().toISOString()) + " seznam.cz loader finished.");
 			};
 
-			console.log("iitc seznam.cz maps plugin: seznam.cz API downloaded, starting loader.");
+			console.log("iitc seznam.cz maps plugin " + (new Date().toISOString()) + " seznam.cz API downloaded, starting loader.");
 			Loader.async = true;
 			Loader.load(null, {}, seznam_loader_done);
 		};
 
-		console.log("iitc seznam.cz maps plugin: Donwloading seznam.cz API.");
+		console.log("iitc seznam.cz maps plugin " + (new Date().toISOString()) + " Donwloading seznam.cz API.");
 		var seznam_api = "https://api.mapy.cz/loader.js";
 		load(seznam_api).thenRun(seznam_api_loaded);
 	};
@@ -172,7 +172,7 @@ function wrapper(plugin_info)
 	}
 }
 
-console.log("iitc seznam.cz maps plugin: I'm alive!");
+console.log("iitc seznam.cz maps plugin " + (new Date().toISOString()) + " I'm alive!");
 var script = document.createElement("script");
 var info = {};
 if(typeof GM_info !== 'undefined' && GM_info && GM_info.script){
