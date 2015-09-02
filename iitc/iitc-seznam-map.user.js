@@ -70,6 +70,8 @@ function wrapper(plugin_info)
 					{
 						this.sz_code = code;
 						this.sz_name = name;
+						var opts = {maxZoom:16};
+						L.Util.setOptions(this, opts);
 					},
 					onAdd: function(map)
 					{
