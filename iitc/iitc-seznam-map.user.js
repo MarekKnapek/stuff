@@ -122,7 +122,7 @@ function wrapper(plugin_info)
 		initialize: function(name)
 		{
 			this.sz_name = name;
-			var opts = { maxZoom : 16 };
+			var opts = { maxZoom : 18 };
 			L.Util.setOptions(this, opts);
 		},
 
