@@ -2,10 +2,10 @@
 // @id           iitc-plugin-seznam
 // @name         IITC map layer from seznam.cz
 // @category     Map Tiles
-// @namespace    iitcseznamcz
+// @namespace    https://github.com/MarekKnapek
 // @description  IITC map layer from seznam.cz
 // @author       Marek
-// @version      0.3
+// @version      0.4
 // @downloadURL  https://github.com/MarekKnapek/stuff/raw/release/iitc/iitc-seznam-map.user.js
 // @updateURL    https://github.com/MarekKnapek/stuff/raw/release/iitc/iitc-seznam-map.user.update.js
 // @include      https://www.ingress.com/intel*
