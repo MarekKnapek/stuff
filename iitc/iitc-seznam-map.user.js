@@ -5,7 +5,7 @@
 // @namespace    iitcseznamcz
 // @description  IITC map layer from seznam.cz
 // @author       Marek
-// @version      0.2
+// @version      0.3
 // @downloadURL  https://github.com/MarekKnapek/stuff/raw/release/iitc/iitc-seznam-map.user.js
 // @updateURL    https://github.com/MarekKnapek/stuff/raw/release/iitc/iitc-seznam-map.user.update.js
 // @include      https://www.ingress.com/intel*
