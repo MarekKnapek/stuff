@@ -153,6 +153,7 @@ function wrapper(plugin_info)
 		sz_update: function()
 		{
 			map = this.sz_map;
+			smap = this.sz_smap;
 			div_outer = this.sz_div_outer;
 			div_inner = this.sz_div_inner;
 
@@ -161,7 +162,8 @@ function wrapper(plugin_info)
 			div_outer.style.height = size.y + "px";
 			div_inner.style.width = size.x + "px";
 			div_inner.style.height = size.y + "px";
-			this.sz_smap.setCenterZoom(SMap.Coords.fromWGS84(this.sz_map.getCenter().lng, this.sz_map.getCenter().lat), this.sz_map.getZoom());
+			var center = map.getCenter();
+			smap.setCenterZoom(SMap.Coords.fromWGS84(center.lng, center.lat), map.getZoom());
 		}
 
 	});
