@@ -42,27 +42,27 @@ function wrapper(plugin_info)
 			{
 				var layer_types =
 				[
-					["BASE", SMap.DEF_BASE],
-					["BIKE", SMap.DEF_BIKE],
-					["GEOGRAPHY", SMap.DEF_GEOGRAPHY],
-					["HISTORIC", SMap.DEF_HISTORIC],
-					["HYBRID", SMap.DEF_HYBRID],
-					["OBLIQUE", SMap.DEF_OBLIQUE],
-					["OBLIQUE_HYBRID", SMap.DEF_OBLIQUE_HYBRID],
-					["OPHOTO", SMap.DEF_OPHOTO],
-					["OPHOTO0203", SMap.DEF_OPHOTO0203],
-					["OPHOTO0406", SMap.DEF_OPHOTO0406],
-					["PANO", SMap.DEF_PANO],
-					["RELIEF", SMap.DEF_RELIEF],
-					["SMART_BASE", SMap.DEF_SMART_BASE],
-					["SMART_OPHOTO", SMap.DEF_SMART_OPHOTO],
-					["SMART_SUMMER", SMap.DEF_SMART_SUMMER],
-					["SMART_TURIST", SMap.DEF_SMART_TURIST],
-					["SMART_WINTER", SMap.DEF_SMART_WINTER],
-					["SUMMER", SMap.DEF_SUMMER],
-					["TRAIL", SMap.DEF_TRAIL],
-					["TURIST", SMap.DEF_TURIST],
-					["TURIST_WINTE", SMap.DEF_TURIST_WINTER]
+					["base", SMap.DEF_BASE],
+					["bike", SMap.DEF_BIKE],
+					["geography", SMap.DEF_GEOGRAPHY],
+					["historic", SMap.DEF_HISTORIC],
+					["hybrid", SMap.DEF_HYBRID],
+					["oblique", SMap.DEF_OBLIQUE],
+					["oblique hybrid", SMap.DEF_OBLIQUE_HYBRID],
+					["ophoto", SMap.DEF_OPHOTO],
+					["ophoto0203", SMap.DEF_OPHOTO0203],
+					["ophoto0406", SMap.DEF_OPHOTO0406],
+					["pano", SMap.DEF_PANO],
+					["relief", SMap.DEF_RELIEF],
+					["smart base", SMap.DEF_SMART_BASE],
+					["smart ophoto", SMap.DEF_SMART_OPHOTO],
+					["smart summer", SMap.DEF_SMART_SUMMER],
+					["smart turist", SMap.DEF_SMART_TURIST],
+					["smart winter", SMap.DEF_SMART_WINTER],
+					["summer", SMap.DEF_SUMMER],
+					["trail", SMap.DEF_TRAIL],
+					["turist", SMap.DEF_TURIST],
+					["turist winter", SMap.DEF_TURIST_WINTER]
 				];
 
 				var seznam_layer = L.Class.extend({
