@@ -49,27 +49,27 @@ function wrapper(plugin_info)
 		window.plugin.map_seznam.waiting = false;
 
 		window.plugin.map_seznam.layer_codes = [
-			SMap.DEF_BASE          	,
-			SMap.DEF_BIKE          	,
-			SMap.DEF_GEOGRAPHY     	,
-			SMap.DEF_HISTORIC      	,
-			SMap.DEF_HYBRID        	,
-			SMap.DEF_OBLIQUE       	,
-			SMap.DEF_OBLIQUE_HYBRID	,
-			SMap.DEF_OPHOTO        	,
-			SMap.DEF_OPHOTO0203    	,
-			SMap.DEF_OPHOTO0406    	,
-			SMap.DEF_PANO          	,
-			SMap.DEF_RELIEF        	,
-			SMap.DEF_SMART_BASE    	,
-			SMap.DEF_SMART_OPHOTO  	,
-			SMap.DEF_SMART_SUMMER  	,
-			SMap.DEF_SMART_TURIST  	,
-			SMap.DEF_SMART_WINTER  	,
-			SMap.DEF_SUMMER        	,
-			SMap.DEF_TRAIL         	,
-			SMap.DEF_TURIST        	,
-			SMap.DEF_TURIST_WINTER
+			SMap.DEF_BASE                                         	,
+			SMap.DEF_BIKE                                         	,
+			SMap.DEF_GEOGRAPHY                                    	,
+			SMap.DEF_HISTORIC                                     	,
+			SMap.DEF_HYBRID                                       	,
+			SMap.DEF_OBLIQUE                                      	,
+			SMap.DEF_OBLIQUE_HYBRID                               	,
+			SMap.DEF_OPHOTO                                       	,
+			SMap.DEF_OPHOTO0203                                   	,
+			SMap.DEF_OPHOTO0406                                   	,
+			SMap.DEF_PANO                                         	,
+			SMap.DEF_RELIEF                                       	,
+			SMap.DEF_SMART_BASE                                   	,
+			SMap.DEF_SMART_OPHOTO                                 	,
+			SMap.DEF_SMART_SUMMER                                 	,
+			[SMap.DEF_SMART_TURIST, SMap.DEF_TRAIL, SMap.DEF_BIKE]	,
+			SMap.DEF_SMART_WINTER                                 	,
+			SMap.DEF_SUMMER                                       	,
+			SMap.DEF_TRAIL                                        	,
+			[SMap.DEF_TURIST, SMap.DEF_TRAIL, SMap.DEF_BIKE]      	,
+			[SMap.DEF_TURIST_WINTER, SMap.DEF_TRAIL, SMap.DEF_BIKE]
 		];
 
 		var len = window.plugin.map_seznam.layer_codes.length;
@@ -152,7 +152,13 @@ function wrapper(plugin_info)
 			var zoom = map.getZoom();
 			var center = SMap.Coords.fromWGS84(ct.lng, ct.lat);
 			var smap = new SMap(div_inner, center, zoom);
-			smap.addDefaultLayer(this.sz_code).enable();
+			if(Array.isArray(this.sz_code)){
+				this.sz_code.forEach(function(item, index, array){
+					smap.addDefaultLayer(item).enable();
+				});
+			}else{
+				smap.addDefaultLayer(this.sz_code).enable();
+			}
 			var sync = new SMap.Control.Sync({ bottomSpace : 0 });
 			smap.addControl(sync);
 			this.sz_smap = smap;
