@@ -29,17 +29,67 @@ function wrapper(plugin_info){
 	osma.state = {};
 	osma.funcs = function(){};
 	osma.config = {};
-	osma.config.post_url = "https://example.com/ingress.php";
-	osma.config.post_param = "portal";
-	osma.config.done_url = "https://example.com/ingress.php";
-	osma.config.iterate_min = 5 * 1000;
-	osma.config.iterate_max = 10 * 1000;
-	osma.config.again_min = 3 * 1000 * 60 * 60;
-	osma.config.again_max = 5 * 1000 * 60 * 60;
-	osma.config.start_up = 5 * 1000 * 60;
+	osma.dflt = {};
 
 	osma.funcs.toolbox_menu = function(){
-		osma.funcs.begin();
+		var html = "";
+		var keys = Object.keys(osma.config);
+		var n = keys.length;
+		for(i = 0; i != n; ++i){
+			html += keys[i] + ":<input type=\"text\" id=\"" + keys[i] + "\" value=\"" + osma.config[keys[i]] + "\" onchange=\"window.plugin.osma.funcs.changed(event);\"/><br/>\n";
+		}
+		html += "<br/><button onclick=\"window.plugin.osma.funcs.reset();\">reset</button><br/>";
+		window.dialog(
+			{
+				html:html,
+				title:"osma",
+				modal:false
+			}
+		);
+	};
+
+	osma.funcs.changed = function(e){
+		var id = e.target.id;
+		var v = e.target.value;
+		osma.config[id] = v;
+		osma.funcs.save_settings();
+	};
+
+	osma.funcs.reset = function(){
+		osma.config = JSON.parse(JSON.stringify(osma.dflt));
+		osma.funcs.save_settings();
+	};
+
+	osma.funcs.load_settings = function(){
+		osma.config = JSON.parse(JSON.stringify(osma.dflt));
+		var cfg_str = localStorage.getItem("osma");
+		if(!cfg_str || cfg_str == ""){
+			return;
+		}
+		var cfg = JSON.parse(cfg_str);
+		var keys_a = Object.keys(osma.dflt);
+		var n = keys_a.length;
+		var keys_b = Object.keys(cfg);
+		var m = keys_b.length;
+		for(i = 0; i != n; ++i){
+			for(j = 0; j != m; ++j){
+				if(keys_a[i] == keys_b[j]){
+					osma.config[keys_a[i]] = cfg[keys_b[j]];
+					break;
+				}
+			}
+		}
+	};
+
+	osma.funcs.save_settings = function(){
+		var cfg = {};
+		var keys = Object.keys(osma.dflt);
+		var n = keys.length;
+		for(i = 0; i != n; ++i){
+			cfg[keys[i]] = osma.config[keys[i]];
+		}
+		var cfg_str = JSON.stringify(cfg);
+		localStorage.setItem("osma", cfg_str);
 	};
 
 	osma.funcs.begin = function(){
@@ -106,8 +156,18 @@ function wrapper(plugin_info){
 
 	osma.funcs.setup = function(){
 		console.log("iitc osma " + (new Date().toISOString()) + " Setup.");
+		osma.state.good = true;
+		osma.dflt.post_url = "https://example.com/ingress.php";
+		osma.dflt.post_param = "portal";
+		osma.dflt.done_url = "https://example.com/ingress.php";
+		osma.dflt.iterate_min = 5 * 1000;
+		osma.dflt.iterate_max = 10 * 1000;
+		osma.dflt.again_min = 3 * 1000 * 60 * 60;
+		osma.dflt.again_max = 5 * 1000 * 60 * 60;
+		osma.dflt.start_up = 5 * 1000 * 60;
+		osma.funcs.load_settings();
 		$("#toolbox").append("<a onclick=\"window.plugin.osma.funcs.toolbox_menu();\">osma</a>");
-		window.setTimeout(function(){ osma.funcs.begin(); }, osma.config.start_up);
+		//window.setTimeout(function(){ osma.funcs.begin(); }, osma.config.start_up);
 	};
 
 	var setup = osma.funcs.setup;
