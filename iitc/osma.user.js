@@ -120,7 +120,7 @@ function wrapper(plugin_info){
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("GET", osma.config.done_url, true);
 			xhttp.send(null);
-			window.setTimeout(function(){ osma.funcs.begin(); }, Math.floor(Math.random() * (osma.config.again_max - osma.config.again_min)) + osma.config.again_min);
+			window.setTimeout(function(){ window.location.reload(true); }, Math.floor(Math.random() * (osma.config.again_max - osma.config.again_min)) + osma.config.again_min);
 			return;
 		}
 		var guid = guids[curr];
@@ -156,7 +156,6 @@ function wrapper(plugin_info){
 
 	osma.funcs.setup = function(){
 		console.log("iitc osma " + (new Date().toISOString()) + " Setup.");
-		osma.state.good = true;
 		osma.dflt.post_url = "https://example.com/ingress.php";
 		osma.dflt.post_param = "portal";
 		osma.dflt.done_url = "https://example.com/ingress.php";
@@ -167,7 +166,7 @@ function wrapper(plugin_info){
 		osma.dflt.start_up = 5 * 1000 * 60;
 		osma.funcs.load_settings();
 		$("#toolbox").append("<a onclick=\"window.plugin.osma.funcs.toolbox_menu();\">osma</a>");
-		//window.setTimeout(function(){ osma.funcs.begin(); }, osma.config.start_up);
+		window.setTimeout(function(){ osma.funcs.begin(); }, osma.config.start_up);
 	};
 
 	var setup = osma.funcs.setup;
