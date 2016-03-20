@@ -92,7 +92,7 @@ function wrapper(plugin_info){
 		localStorage.setItem("osma", cfg_str);
 	};
 
-	osma.funcs.begin = function(){
+	osma.funcs.automat_begin = function(){
 		var bounds = map.getBounds();
 		var portals = window.portals;
 		var my_guids = [];
@@ -109,18 +109,18 @@ function wrapper(plugin_info){
 
 		osma.state.curr = 0;
 		osma.state.guids = my_guids;
+
+		osma.state.automat = osma.constants.automat_next_protal;
 		osma.funcs.iterate();
 	};
 
-	osma.funcs.iterate = function(){
+	osma.funcs.automat_next_protal = function(){
 		var curr = osma.state.curr;
 		var guids = osma.state.guids;
 		var len = guids.length;
 		if(curr >= len){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", osma.config.done_url, true);
-			xhttp.send(null);
-			window.setTimeout(function(){ window.location.reload(true); }, Math.floor(Math.random() * (osma.config.again_max - osma.config.again_min)) + osma.config.again_min);
+			osma.state.automat = osma.constants.automat_done;
+			osma.funcs.iterate();
 			return;
 		}
 		var guid = guids[curr];
@@ -129,7 +129,8 @@ function wrapper(plugin_info){
 		var detail = portalDetail.get(guid);
 		if(!detail){
 			portalDetail.request(guid);
-			window.setTimeout(function(){ osma.funcs.iterate(); }, Math.floor(Math.random() * (osma.config.iterate_max - osma.config.iterate_min)) + osma.config.iterate_min);
+			osma.state.automat = osma.constants.automat_wait_between_portals;
+			osma.funcs.iterate();
 			return;
 		}
 
@@ -151,7 +152,70 @@ function wrapper(plugin_info){
 		xhttp.send(osma.config.post_param + "=" + str);
 
 		osma.state.curr = curr + 1;
-		window.setTimeout(function(){ osma.funcs.iterate(); }, 1);
+		osma.funcs.iterate();
+	};
+
+	osma.funcs.automat_done = function(){
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("GET", osma.config.done_url, true);
+		xhttp.send(null);
+
+		var now = Date.now();
+		var random = Math.random();
+		var wait = Math.floor(random * (parseInt(osma.config.again_max, 10) - parseInt(osma.config.again_min, 10))) + parseInt(osma.config.again_min, 10);
+		osma.state.next_begin = now + wait;
+
+		osma.state.automat = osma.constants.automat_wait_for_force_refresh;
+		osma.funcs.iterate();
+	};
+
+	osma.funcs.automat_wait_between_portals = function(){
+		var random = Math.random();
+		var wait = Math.floor(random * (parseInt(osma.config.iterate_max, 10) - parseInt(osma.config.iterate_min, 10))) + parseInt(osma.config.iterate_min, 10);
+
+		osma.state.automat = osma.constants.automat_next_protal;
+		window.setTimeout(osma.funcs.iterate, wait);
+	};
+
+	osma.funcs.automat_wait_for_force_refresh = function(){
+		var now = Date.now();
+		if(now >= osma.state.next_begin){
+			osma.state.automat = osma.constants.automat_refresh;
+			osma.funcs.iterate();
+		}else{
+			osma.state.force_response = "";
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function(){
+				if(xhttp.readyState == 4 && xmlHttp.status == 200){
+					osma.state.force_response = xmlHttp.responseText
+				}
+			}
+			xhttp.open("GET", osma.config.force_url, true);
+			xhttp.send(null);
+
+			osma.state.automat = osma.constants.automat_read_force_response;
+			window.setTimeout(osma.funcs.iterate, 10 * 1000);
+		}
+	};
+
+	osma.funcs.automat_read_force_response = function(){
+		var response = osma.state.force_response;
+		if(response == "1"){
+			osma.state.automat = osma.constants.automat_refresh;
+			osma.funcs.iterate();
+		}else{
+			osma.state.automat = osma.constants.automat_wait_for_force_refresh;
+			window.setTimeout(osma.funcs.iterate, parseInt(osma.config.force_wait, 10));
+		}
+	};
+
+	osma.funcs.automat_refresh = function(){
+		window.location.reload(true);
+	};
+
+	osma.funcs.iterate = function(){
+		var func = osma.constants.automat_functions[osma.state.automat];
+		func();
 	};
 
 	osma.funcs.setup = function(){
@@ -159,14 +223,33 @@ function wrapper(plugin_info){
 		osma.dflt.post_url = "https://example.com/ingress.php";
 		osma.dflt.post_param = "portal";
 		osma.dflt.done_url = "https://example.com/ingress.php";
+		osma.dflt.force_url = "http://example.com/refresh.php?mesto=";
 		osma.dflt.iterate_min = 5 * 1000;
 		osma.dflt.iterate_max = 10 * 1000;
 		osma.dflt.again_min = 3 * 1000 * 60 * 60;
 		osma.dflt.again_max = 5 * 1000 * 60 * 60;
 		osma.dflt.start_up = 5 * 1000 * 60;
+		osma.dflt.force_wait = 5 * 1000 * 60;
 		osma.funcs.load_settings();
+		osma.constants = {};
+		osma.constants.automat_begin = 0;
+		osma.constants.automat_next_protal = 1;
+		osma.constants.automat_done = 2;
+		osma.constants.automat_wait_for_force_refresh = 3;
+		osma.constants.automat_wait_between_portals = 4;
+		osma.constants.automat_read_force_response = 5;
+		osma.constants.automat_refresh = 6;
+		osma.constants.automat_functions = {};
+		osma.constants.automat_functions[osma.constants.automat_begin] = osma.funcs.automat_begin;
+		osma.constants.automat_functions[osma.constants.automat_next_protal] = osma.funcs.automat_next_protal;
+		osma.constants.automat_functions[osma.constants.automat_done] = osma.funcs.automat_done;
+		osma.constants.automat_functions[osma.constants.automat_wait_for_force_refresh] = osma.funcs.automat_wait_for_force_refresh;
+		osma.constants.automat_functions[osma.constants.automat_wait_between_portals] = osma.funcs.automat_wait_between_portals;
+		osma.constants.automat_functions[osma.constants.automat_read_force_response] = osma.funcs.automat_read_force_response;
+		osma.constants.automat_functions[osma.constants.automat_refresh] = osma.funcs.automat_refresh;
 		$("#toolbox").append("<a onclick=\"window.plugin.osma.funcs.toolbox_menu();\">osma</a>");
-		window.setTimeout(function(){ osma.funcs.begin(); }, osma.config.start_up);
+		osma.state.automat = osma.constants.automat_begin;
+		window.setTimeout(function(){ osma.funcs.iterate(); }, osma.config.start_up);
 	};
 
 	var setup = osma.funcs.setup;
