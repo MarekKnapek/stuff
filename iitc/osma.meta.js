@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       	osma
 // @namespace  	https://github.com/MarekKnapek
-// @version    	0.2
+// @version    	0.3
 // @description	osma
 // @author     	Marek Knápek
 // @updateURL  	https://raw.githubusercontent.com/MarekKnapek/stuff/master/iitc/osma.meta.js
