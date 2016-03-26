@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       	osma
 // @namespace  	https://github.com/MarekKnapek
-// @version    	0.3.1
+// @version    	0.3.2
 // @description	osma
 // @author     	Marek Knápek
 // @updateURL  	https://raw.githubusercontent.com/MarekKnapek/stuff/master/iitc/osma.meta.js
@@ -200,7 +200,7 @@ function wrapper(plugin_info){
 
 	osma.funcs.automat_read_force_response = function(){
 		var response = osma.state.force_response;
-		if(response == "1"){
+		if(response.startsWith("1")){
 			osma.state.automat = osma.constants.automat_refresh;
 			osma.funcs.iterate();
 		}else{
