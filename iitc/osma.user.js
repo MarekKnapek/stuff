@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       	osma
 // @namespace  	https://github.com/MarekKnapek
-// @version    	0.3
+// @version    	0.3.1
 // @description	osma
 // @author     	Marek Knápek
 // @updateURL  	https://raw.githubusercontent.com/MarekKnapek/stuff/master/iitc/osma.meta.js
@@ -186,8 +186,8 @@ function wrapper(plugin_info){
 			osma.state.force_response = "";
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4 && xmlHttp.status == 200){
-					osma.state.force_response = xmlHttp.responseText
+				if(xhttp.readyState == 4 && xhttp.status == 200){
+					osma.state.force_response = xhttp.responseText
 				}
 			}
 			xhttp.open("GET", osma.config.force_url, true);
