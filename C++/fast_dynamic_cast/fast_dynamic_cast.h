@@ -41,7 +41,7 @@ namespace mk
 		struct cache_elem
 		{
 			::std::uintptr_t m_vptr = 0;
-			::std::uintptr_t m_offset;
+			::std::ptrdiff_t m_offset;
 		};
 		struct cache
 		{
@@ -86,20 +86,20 @@ namespace mk
 
 		static thread_local ::mk::detail::cache s_cache;
 
-		::std::uintptr_t const vptr = *reinterpret_cast<::std::uintptr_t*>(pf);
+		::std::uintptr_t const vptr = *reinterpret_cast<::std::uintptr_t const*>(pf);
 		for(unsigned i = 0; i != ::mk::detail::s_cache_size; ++i){
 			if(s_cache.m_elems[i].m_vptr == vptr){
 				if(s_cache.m_elems[i].m_offset == ::mk::detail::s_failed_cast){
 					return nullptr;
 				}else{
-					return reinterpret_cast<T>(reinterpret_cast<char*>(pf) + s_cache.m_elems[i].m_offset);
+					return reinterpret_cast<T>(const_cast<char*>(reinterpret_cast<char const*>(pf)) + s_cache.m_elems[i].m_offset);
 				}
 			}
 		}
 		T const pt = dynamic_cast<T>(pf);
 		if(pt){
 			s_cache.m_elems[s_cache.m_index].m_vptr = vptr;
-			s_cache.m_elems[s_cache.m_index].m_offset = reinterpret_cast<char*>(pt) - reinterpret_cast<char*>(pf);
+			s_cache.m_elems[s_cache.m_index].m_offset = reinterpret_cast<char const*>(pt) - reinterpret_cast<char const*>(pf);
 		}else{
 			s_cache.m_elems[s_cache.m_index].m_vptr = vptr;
 			s_cache.m_elems[s_cache.m_index].m_offset = ::mk::detail::s_failed_cast;
