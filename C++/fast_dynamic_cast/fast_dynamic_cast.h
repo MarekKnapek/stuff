@@ -4,6 +4,8 @@
 
 // Inspired by https://github.com/tobspr/FastDynamicCast
 
+#include <cstdint>
+#include <limits>
 #include <memory> // addressof
 #include <type_traits>
 #include <typeinfo> // bad_cast, type_info
@@ -35,7 +37,7 @@ namespace mk
 	namespace detail
 	{
 
-		static const ::std::uintptr_t s_failed_cast = (static_cast<::std::uintptr_t>(0) - 1) / 2;
+		static const ::std::ptrdiff_t s_failed_cast = ::std::numeric_limits<::std::ptrdiff_t>::max() / 2;
 		static const unsigned s_cache_size = 4;
 
 		struct cache_elem
