@@ -40,8 +40,22 @@ namespace mk
 
 void ::mk::dynamic_cast_tests()
 {
+	struct classa
+	{
+		virtual ~classa() = default;
+	};
+	struct classb : public classa
+	{
+	};
+	classa const*const pa = new classb{};
+	classb const*const dpb = dynamic_cast<classb const*>(pa);
+	classb const*const ffb = ::mk::fast_dynamic_cast<classb const*>(pa);
+	classb const& drb = dynamic_cast<classb const&>(*pa);
+	classb const& frb = ::mk::fast_dynamic_cast<classb const&>(*pa);
+
+
 	static const unsigned rep1 = 2;
-	static const unsigned rep2 = 5000;
+	static const unsigned rep2 = 100;
 
 	::mk::detail::Base_____ base_____;
 	::mk::detail::Derived__ derived__;
@@ -132,8 +146,10 @@ static void ::mk::mkassert(bool const exp)
 }
 
 
+int FDC_main();
 int main()
 {
 	::mk::dynamic_cast_tests();
+	FDC_main();
 	return 0;
 }
