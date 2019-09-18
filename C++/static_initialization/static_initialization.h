@@ -27,7 +27,7 @@ public:
 struct static_initialization_base
 {
 public:
-	static_initialization_base(static_initialization_func_t const constructor, static_initialization_func_t const destructor, char* const storage) :
+	static_initialization_base(static_initialization_func_t const constructor, static_initialization_func_t const destructor, void* const storage) :
 		m_constructor(constructor),
 		m_destructor(destructor),
 		m_storage(storage),
@@ -37,7 +37,7 @@ public:
 public:
 	static_initialization_func_t const m_constructor;
 	static_initialization_func_t const m_destructor;
-	char* const m_storage;
+	void* const m_storage;
 	static_initialization_base* m_next;
 };
 
