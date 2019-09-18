@@ -27,13 +27,7 @@ public:
 struct static_initialization_base
 {
 public:
-	static_initialization_base(static_initialization_func_t const constructor, static_initialization_func_t const destructor, void* const storage) :
-		m_constructor(constructor),
-		m_destructor(destructor),
-		m_storage(storage),
-		m_next(nullptr)
-	{
-	}
+	static_initialization_base(static_initialization_func_t const constructor, static_initialization_func_t const destructor, void* const storage);
 public:
 	static_initialization_func_t const m_constructor;
 	static_initialization_func_t const m_destructor;

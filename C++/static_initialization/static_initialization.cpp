@@ -33,8 +33,16 @@ void static_initialization_all::destruct_all()
 	}
 }
 
-
 static_initialization_base* static_initialization_all::g_head;
+
+
+static_initialization_base::static_initialization_base(static_initialization_func_t const constructor, static_initialization_func_t const destructor, void* const storage) :
+	m_constructor(constructor),
+	m_destructor(destructor),
+	m_storage(storage),
+	m_next(nullptr)
+{
+}
 
 
 #pragma pop_macro("new")
