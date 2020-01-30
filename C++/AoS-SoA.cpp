@@ -76,43 +76,7 @@ struct my_add_pointer
 };
 
 
-template<int...>
-struct my_sequence
-{
-};
-
-template<int head_int, int... tail_ints>
-struct my_sequence<head_int, tail_ints...>
-{
-	static constexpr int const s_int = head_int;
-	typedef my_sequence<tail_ints...> rest_seq;
-};
-
-
-template<int...>
-struct my_sequence_helper;
-
-template<int head_int, int... tail_ints>
-struct my_sequence_helper<head_int, tail_ints...>
-{
-	typedef typename my_sequence_helper<head_int - 1, head_int, tail_ints...>::type type;
-};
-
-template<int... ints>
-struct my_sequence_helper<0, ints...>
-{
-	typedef my_sequence<0, ints...> type;
-};
-
-
-template<int size>
-auto my_make_my_sequence()
-{
-	return typename my_sequence_helper<size>::type{};
-}
-
-
-enum my_layout
+enum class my_layout
 {
 	aos,
 	soa,
@@ -123,7 +87,7 @@ template<my_layout, typename>
 struct my_container;
 
 template<typename... ts>
-struct my_container<aos, my_tuple<ts...>>
+struct my_container<my_layout::aos, my_tuple<ts...>>
 {
 	void resize(int cnt)
 	{
@@ -147,18 +111,16 @@ struct my_container<aos, my_tuple<ts...>>
 };
 
 template<typename... ts>
-struct my_container<soa, my_tuple<ts...>>
+struct my_container<my_layout::soa, my_tuple<ts...>>
 {
 public:
 	void resize(int cnt)
 	{
-		auto const s = my_make_my_sequence<sizeof...(ts)>();
-		resize_impl<ts...>(cnt, s);
+		resize_impl<ts...>(cnt);
 	}
 	void destroy()
 	{
-		auto const s = my_make_my_sequence<sizeof...(ts)>();
-		destroy_impl<ts...>(s);
+		destroy_impl<true, ts...>();
 	}
 	template<int idx>
 	auto& get(int i)
@@ -175,21 +137,21 @@ private:
 	void resize_impl(...)
 	{
 	}
-	template<typename head_t, typename... tail_ts, int head_int, int... tail_ints>
-	void resize_impl(int const cnt, my_sequence<head_int, tail_ints...> const&)
+	template<typename head_t, typename... tail_ts>
+	void resize_impl(int const cnt)
 	{
-		my_get<head_int>(m_data) = new head_t[cnt];
-		resize_impl<tail_ts...>(cnt, my_sequence<tail_ints...>{});
+		my_get<sizeof...(ts) - sizeof...(tail_ts) - 1>(m_data) = new head_t[cnt];
+		resize_impl<tail_ts...>(cnt);
 	}
-	template<typename...>
-	void destroy_impl(...)
+	template<bool>
+	void destroy_impl()
 	{
 	}
-	template<typename head_t, typename... tail_ts, int head_int, int... tail_ints>
-	void destroy_impl(my_sequence<head_int, tail_ints...> const&)
+	template<bool, typename head_t, typename... tail_ts>
+	void destroy_impl()
 	{
-		delete[] my_get<head_int>(m_data);
-		destroy_impl<tail_ts...>(my_sequence<tail_ints...>{});
+		delete[] my_get<sizeof...(ts) - sizeof...(tail_ts) - 1>(m_data);
+		destroy_impl<true, tail_ts...>();
 	}
 private:
 	my_tuple<typename my_add_pointer<ts>::type...> m_data;
@@ -215,8 +177,8 @@ int main()
 	my_get<minutes>(time).m_v = 51;
 	my_get<seconds>(time).m_v = 56;
 
-	my_container<aos, time_t> cnt1;
-	cnt1.resize(3);
+	my_container<my_layout::aos, time_t> cnt1;
+	cnt1.resize(1000);
 	cnt1.get<0>(0).m_v = 1;
 	cnt1.get<1>(0).m_v = 2;
 	cnt1.get<2>(0).m_v = 3;
@@ -237,8 +199,8 @@ int main()
 	cnt1.get<minutes>(2).m_v = 18;
 	cnt1.get<seconds>(2).m_v = 19;
 
-	my_container<soa, time_t> cnt2;
-	cnt2.resize(3);
+	my_container<my_layout::soa, time_t> cnt2;
+	cnt2.resize(1000);
 	cnt2.get<0>(0).m_v = 1;
 	cnt2.get<1>(0).m_v = 2;
 	cnt2.get<2>(0).m_v = 3;
