@@ -16,21 +16,40 @@ struct my_tuple<head_t>
 
 
 template<int, typename...>
-struct my_get_helper;
+struct my_get_index_helper;
 
 template<int idx, typename head_t, typename... tail_ts>
-struct my_get_helper<idx, head_t, tail_ts...>
+struct my_get_index_helper<idx, head_t, tail_ts...>
 {
 	auto& operator()(my_tuple<head_t, tail_ts...>& val) const
 	{
-		return my_get_helper<idx - 1, tail_ts...>{}(val.m_tail);
+		return my_get_index_helper<idx - 1, tail_ts...>{}(val.m_tail);
 	}
 };
 
 template<typename head_t, typename... tail_ts>
-struct my_get_helper<0, head_t, tail_ts...>
+struct my_get_index_helper<0, head_t, tail_ts...>
 {
 	auto& operator()(my_tuple<head_t, tail_ts...>& val) const
+	{
+		return val.m_head;
+	}
+};
+
+
+template<typename target_t, typename head_t, typename... tail_ts>
+struct my_get_type_helper
+{
+	auto& operator()(my_tuple<head_t, tail_ts...>& val) const
+	{
+		return my_get_type_helper<target_t, tail_ts...>{}(val.m_tail);
+	}
+};
+
+template<typename target_t_and_head_t, typename... tail_ts>
+struct my_get_type_helper<target_t_and_head_t, target_t_and_head_t, tail_ts...>
+{
+	auto& operator()(my_tuple<target_t_and_head_t, tail_ts...>& val) const
 	{
 		return val.m_head;
 	}
@@ -40,7 +59,13 @@ struct my_get_helper<0, head_t, tail_ts...>
 template<int idx, typename... ts>
 auto& my_get(my_tuple<ts...>& val)
 {
-	return my_get_helper<idx, ts...>{}(val);
+	return my_get_index_helper<idx, ts...>{}(val);
+}
+
+template<typename target, typename... tail_ts>
+auto& my_get(my_tuple<tail_ts...>& val)
+{
+	return my_get_type_helper<target, tail_ts...>{}(val);
 }
 
 
@@ -59,7 +84,7 @@ struct my_sequence
 template<int head_int, int... tail_ints>
 struct my_sequence<head_int, tail_ints...>
 {
-	static int const s_int = head_int;
+	static constexpr int const s_int = head_int;
 	typedef my_sequence<tail_ints...> rest_seq;
 };
 
@@ -113,6 +138,11 @@ struct my_container<aos, my_tuple<ts...>>
 	{
 		return my_get<idx>(m_data[i]);
 	}
+	template<typename target_t>
+	auto& get(int i)
+	{
+		return my_get<target_t>(m_data[i]);
+	}
 	typename my_add_pointer<my_tuple<ts...>>::type m_data;
 };
 
@@ -135,25 +165,31 @@ public:
 	{
 		return my_get<idx>(m_data)[i];
 	}
+	template<typename target_t>
+	auto& get(int i)
+	{
+		return my_get<typename my_add_pointer<target_t>::type>(m_data)[i];
+	}
 private:
-	template<int head_int>
-	void resize_impl(int const, my_sequence<head_int> const&)
+	template<typename...>
+	void resize_impl(...)
 	{
 	}
-	template<typename t, typename... ts2, int head_int, int... tail_ints>
-	void resize_impl(int const cnt, my_sequence<head_int, tail_ints...> const& s)
+	template<typename head_t, typename... tail_ts, int head_int, int... tail_ints>
+	void resize_impl(int const cnt, my_sequence<head_int, tail_ints...> const&)
 	{
-		my_get<s.s_int>(m_data) = new t[cnt];
-		resize_impl<ts2...>(cnt, my_sequence<tail_ints...>{});
+		my_get<head_int>(m_data) = new head_t[cnt];
+		resize_impl<tail_ts...>(cnt, my_sequence<tail_ints...>{});
 	}
-	template<int head_int>
-	void destroy_impl(my_sequence<head_int> const&)
+	template<typename...>
+	void destroy_impl(...)
 	{
 	}
-	template<typename t, typename... ts2, int head_int, int... tail_ints>
-	void destroy_impl(my_sequence<head_int, tail_ints...> const& s)
+	template<typename head_t, typename... tail_ts, int head_int, int... tail_ints>
+	void destroy_impl(my_sequence<head_int, tail_ints...> const&)
 	{
-		delete[] my_get<s.s_int>(m_data);
+		delete[] my_get<head_int>(m_data);
+		destroy_impl<tail_ts...>(my_sequence<tail_ints...>{});
 	}
 private:
 	my_tuple<typename my_add_pointer<ts>::type...> m_data;
@@ -163,17 +199,21 @@ private:
 
 
 
+struct hours__{ int m_v; };
+struct minutes{ int m_v; };
+struct seconds{ int m_v; };
+typedef my_tuple<hours__, minutes, seconds> time_t;
+
 int main()
 {
-	struct hours{ int m_v; };
-	struct minutes{ int m_v; };
-	struct seconds{ int m_v; };
-	typedef my_tuple<hours, minutes, seconds> time_t;
-
 	time_t time;
 	my_get<0>(time).m_v = 14;
 	my_get<1>(time).m_v = 50;
-	my_get<2>(time).m_v = 59;
+	my_get<2>(time).m_v = 55;
+
+	my_get<hours__>(time).m_v = 15;
+	my_get<minutes>(time).m_v = 51;
+	my_get<seconds>(time).m_v = 56;
 
 	my_container<aos, time_t> cnt1;
 	cnt1.resize(3);
@@ -187,6 +227,16 @@ int main()
 	cnt1.get<1>(2).m_v = 8;
 	cnt1.get<2>(2).m_v = 9;
 
+	cnt1.get<hours__>(0).m_v = 11;
+	cnt1.get<minutes>(0).m_v = 12;
+	cnt1.get<seconds>(0).m_v = 13;
+	cnt1.get<hours__>(1).m_v = 14;
+	cnt1.get<minutes>(1).m_v = 15;
+	cnt1.get<seconds>(1).m_v = 16;
+	cnt1.get<hours__>(2).m_v = 17;
+	cnt1.get<minutes>(2).m_v = 18;
+	cnt1.get<seconds>(2).m_v = 19;
+
 	my_container<soa, time_t> cnt2;
 	cnt2.resize(3);
 	cnt2.get<0>(0).m_v = 1;
@@ -198,6 +248,16 @@ int main()
 	cnt2.get<0>(2).m_v = 7;
 	cnt2.get<1>(2).m_v = 8;
 	cnt2.get<2>(2).m_v = 9;
+
+	cnt2.get<hours__>(0).m_v = 11;
+	cnt2.get<minutes>(0).m_v = 12;
+	cnt2.get<seconds>(0).m_v = 13;
+	cnt2.get<hours__>(1).m_v = 14;
+	cnt2.get<minutes>(1).m_v = 15;
+	cnt2.get<seconds>(1).m_v = 16;
+	cnt2.get<hours__>(2).m_v = 17;
+	cnt2.get<minutes>(2).m_v = 18;
+	cnt2.get<seconds>(2).m_v = 19;
 
 	cnt1.destroy();
 	cnt2.destroy();
