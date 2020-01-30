@@ -84,18 +84,29 @@ enum class my_layout
 
 
 template<my_layout, typename>
-struct my_container;
+class my_container;
 
 template<typename... ts>
-struct my_container<my_layout::aos, my_tuple<ts...>>
+class my_container<my_layout::aos, my_tuple<ts...>>
 {
+public:
+	my_container() :
+		m_data()
+	{
+	}
+	~my_container()
+	{
+		destroy();
+	}
 	void resize(int cnt)
 	{
+		destroy();
 		m_data = new my_tuple<ts...>[cnt];
 	}
 	void destroy()
 	{
 		delete[] m_data;
+		m_data = nullptr;
 	}
 	template<int idx>
 	auto& get(int i)
@@ -107,15 +118,25 @@ struct my_container<my_layout::aos, my_tuple<ts...>>
 	{
 		return my_get<target_t>(m_data[i]);
 	}
+private:
 	typename my_add_pointer<my_tuple<ts...>>::type m_data;
 };
 
 template<typename... ts>
-struct my_container<my_layout::soa, my_tuple<ts...>>
+class my_container<my_layout::soa, my_tuple<ts...>>
 {
 public:
+	my_container() :
+		m_data()
+	{
+	}
+	~my_container()
+	{
+		destroy();
+	}
 	void resize(int cnt)
 	{
+		destroy();
 		resize_impl<ts...>(cnt);
 	}
 	void destroy()
@@ -150,7 +171,9 @@ private:
 	template<bool, typename head_t, typename... tail_ts>
 	void destroy_impl()
 	{
-		delete[] my_get<sizeof...(ts) - sizeof...(tail_ts) - 1>(m_data);
+		auto& elem = my_get<sizeof...(ts) - sizeof...(tail_ts) - 1>(m_data);
+		delete[] elem;
+		elem = nullptr;
 		destroy_impl<true, tail_ts...>();
 	}
 private:
