@@ -1,5 +1,13 @@
-#include "../utils/mk_type_eraser.h"
-#include "../utils/verify.h"
+#include "mk_type_eraser_tests.h"
+
+#include "mk_type_eraser.h"
+
+#include <cassert>
+#include <memory>
+#include <type_traits>
+
+
+#define ASSERT(X) do{ if(!(X)){ assert((X)); throw 42; } }while(false)
 
 
 int mk_some_func(int a, int b)
@@ -37,6 +45,7 @@ struct mk_some_struct_large_2 : mk_some_struct_2
 	int m_state_large[14];
 };
 
+
 int mk_type_eraser_test_func()
 {
 	{
@@ -49,8 +58,8 @@ int mk_type_eraser_test_func()
 		auto bb{std::move(aa)};
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_large_1 a;
@@ -62,8 +71,8 @@ int mk_type_eraser_test_func()
 		auto bb{std::move(aa)};
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_1 a;
@@ -77,8 +86,8 @@ int mk_type_eraser_test_func()
 		swap(aa, bb);
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_large_1 a;
@@ -92,8 +101,8 @@ int mk_type_eraser_test_func()
 		swap(aa, bb);
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_1 a;
@@ -111,10 +120,10 @@ int mk_type_eraser_test_func()
 		auto aaa_2 = aa(9, 10);
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_1 == 19);
-		VERIFY(aaa_2 == 23);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_1 == 19);
+		ASSERT(aaa_2 == 23);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_large_1 a;
@@ -132,10 +141,10 @@ int mk_type_eraser_test_func()
 		auto aaa_2 = aa(9, 10);
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_1 == 19);
-		VERIFY(aaa_2 == 23);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_1 == 19);
+		ASSERT(aaa_2 == 23);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_1 a;
@@ -153,10 +162,10 @@ int mk_type_eraser_test_func()
 		auto aaa_2 = aa(9, 10);
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_1 == 19);
-		VERIFY(aaa_2 == 23);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_1 == 19);
+		ASSERT(aaa_2 == 23);
+		ASSERT(bbb_2 == 24);
 	}
 	{
 		mk_some_struct_large_1 a;
@@ -174,12 +183,78 @@ int mk_type_eraser_test_func()
 		auto aaa_2 = aa(9, 10);
 		auto bbb_2 = bb(11, 12);
 
-		VERIFY(aaa_1 == 12);
-		VERIFY(bbb_1 == 19);
-		VERIFY(aaa_2 == 23);
-		VERIFY(bbb_2 == 24);
+		ASSERT(aaa_1 == 12);
+		ASSERT(bbb_1 == 19);
+		ASSERT(aaa_2 == 23);
+		ASSERT(bbb_2 == 24);
 	}
+	mk_type_eraser_constructible_tests();
+	mk_type_eraser_tests_return_reference();
 	return 0;
 }
 
-static int mk_xxx = mk_type_eraser_test_func();
+static_assert(mk::detail::is_invocable_t<void(), void(*)()>::value, "");
+static_assert(mk::detail::is_invocable_t<int(int, int), int(*)(int, int)>::value, "");
+static_assert(!mk::detail::is_invocable_t<int(int, int), int(*)(int)>::value, "");
+
+class non_default_constructible_parameter_t
+{
+private:
+	non_default_constructible_parameter_t() = delete;
+};
+static_assert(mk::detail::is_invocable_t<void(non_default_constructible_parameter_t), void(*)(non_default_constructible_parameter_t)>::value, "");
+
+class non_default_constructible_invocable_t
+{
+private:
+	non_default_constructible_invocable_t() = delete;
+public:
+	int operator()(int, int);
+};
+static_assert(mk::detail::is_invocable_t<int(int, int), non_default_constructible_invocable_t>::value, "");
+
+void mk_type_eraser_constructible_tests()
+{
+	static constexpr auto const s_func_1 = [](int a, int b) -> int { return 42 + a + b; };
+	static constexpr auto const s_func_2 = [](int a, int b) -> int { return 43 + a + b; };
+	{
+		int res_1 = s_func_1(3, 4);
+		ASSERT(res_1 == 42 + 3 + 4);
+		int res_2 = s_func_2(3, 4);
+		ASSERT(res_2 == 43 + 3 + 4);
+	}
+	{
+		static_assert(std::is_constructible_v<mk::type_eraser_t<int(int, int)>, int(*)(int, int)>, "");
+		static_assert(std::is_constructible_v<mk::type_eraser_t<int(int, int)>, long long(*)(int, int)>, "");
+		static_assert(std::is_constructible_v<mk::type_eraser_t<long long(int, int)>, int(*)(int, int)>, "");
+		static_assert(!std::is_constructible_v<mk::type_eraser_t<int(int, int)>, int(*)(int)>, "");
+		static_assert(!std::is_constructible_v<mk::type_eraser_t<int(int, int)>, void(*)(int, int)>, "");
+		mk::type_eraser_t<int(int, int)> type_earsed_func_1{s_func_1};
+		mk::type_eraser_t<int(int, int)> type_earsed_func_2{s_func_2};
+		int res_1 = type_earsed_func_1(3, 4);
+		ASSERT(res_1 == 42 + 3 + 4);
+		int res_2 = type_earsed_func_2(3, 4);
+		ASSERT(res_2 == 43 + 3 + 4);
+	}
+}
+
+
+class mk_abstract_class
+{
+public:
+	virtual int operator()(int, int) = 0;
+};
+
+mk_abstract_class& func_returning_abstract_ref()
+{
+	mk_abstract_class* ptr = nullptr;
+	return *ptr;
+}
+
+void mk_type_eraser_tests_return_reference()
+{
+	mk_abstract_class& ref_1 = func_returning_abstract_ref();
+
+	mk::type_eraser_t<mk_abstract_class&()> eraser_1{func_returning_abstract_ref};
+	mk_abstract_class& ref_2 = eraser_1();
+}
