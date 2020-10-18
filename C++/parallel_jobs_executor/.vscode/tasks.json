@@ -1,0 +1,61 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build debug",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-O0",
+				"-g",
+				"-Wall",
+				"-Wextra",
+				"-pedantic",
+				"-pthread",
+				"-o",
+				"parallel_jobs_executor_test_debug.bin",
+				"parallel_jobs_executor_test.cpp",
+				"parallel_jobs_executor.cpp",
+				"parallel_jobs_executor_impl.cpp"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Build release",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-O2",
+				"-s",
+				"-Wall",
+				"-Wextra",
+				"-pedantic",
+				"-pthread",
+				"-o",
+				"parallel_jobs_executor_test.bin",
+				"parallel_jobs_executor_test.cpp",
+				"parallel_jobs_executor.cpp",
+				"parallel_jobs_executor_impl.cpp"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
