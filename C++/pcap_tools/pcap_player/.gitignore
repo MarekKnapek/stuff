@@ -1,2 +1,6 @@
 /pcap_player.elf
+
+/pcap_player.obj
+/pcap_player.exe
+
 /capture.pcap
